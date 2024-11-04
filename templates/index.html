@@ -3,13 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>上傳PDF檔案</title>
+    <title>上傳和下載PDF檔案</title>
 </head>
 <body>
-    <h1>上傳並轉換 PDF 檔案</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
+    <h1>上傳和下載PDF檔案</h1>
+    
+    <!-- 上傳檔案表單 -->
+    <form action="/" method="post" enctype="multipart/form-data">
         <input type="file" name="file" accept=".pdf">
         <button type="submit">上傳並轉換</button>
     </form>
+
+    <!-- 下載檔案列表 -->
+    <h2>下載轉換後的檔案</h2>
+    {% if files %}
+        <ul>
+            {% for file in files %}
+                <li><a href="{{ url_for('download_file', filename=file) }}">{{ file }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>目前沒有可下載的檔案。</p>
+    {% endif %}
 </body>
 </html>
