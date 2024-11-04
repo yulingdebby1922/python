@@ -3,3 +3,5 @@ gunicorn==20.1.0
 werkzeug==2.1.2
 unstructured-ingest
 unstructured[pdf]
+pdfplumber
+PyMuPDF
