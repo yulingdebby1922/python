@@ -13,26 +13,24 @@ cache_dir = "./cache"
 for folder in [input_dir, output_dir, cache_dir]:
     os.makedirs(folder, exist_ok=True)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return redirect(url_for('index'))
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return redirect(url_for('index'))
+        file = request.files['file']
+        if file.filename == '':
+            return redirect(url_for('index'))
 
-    file = request.files['file']
-    if file.filename == '':
-        return redirect(url_for('index'))
+        if file and file.filename.endswith('.pdf'):
+            file_path = os.path.join(input_dir, file.filename)
+            file.save(file_path)
+            process_pdf(file_path)
+            return redirect(url_for('index'))
 
-    if file and file.filename.endswith('.pdf'):
-        file_path = os.path.join(input_dir, file.filename)
-        file.save(file_path)
-        process_pdf(file_path)
-        return redirect(url_for('download_files'))
-
-    return redirect(url_for('index'))
+    files = os.listdir(output_dir)  # 取得轉換後的檔案列表
+    return render_template('index.html', files=files)
 
 def process_pdf(pdf_file):
     # 清除輸出資料夾
@@ -55,11 +53,6 @@ def process_pdf(pdf_file):
         print("成功轉檔！")
     except subprocess.CalledProcessError as e:
         print("轉檔失敗。錯誤訊息：", e.stderr)
-
-@app.route('/download')
-def download_files():
-    files = os.listdir(output_dir)
-    return render_template('download.html', files=files)
 
 @app.route('/download/<filename>')
 def download_file(filename):
